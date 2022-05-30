@@ -1,0 +1,9 @@
+{
+    "groupId": "99999",
+    "description": "Description",
+    "amount": "50",
+    "fromUserId": "300",
+    "toUserId": "100",
+    "dateTime": "2018-01-01 10:10:10",
+    "createdOn": "2018-01-01 10:10:10"
+}

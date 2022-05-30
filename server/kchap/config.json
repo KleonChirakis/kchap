@@ -1,0 +1,52 @@
+{
+    "generic": {
+        "session": {
+            "name": "qid",
+            "secret": "SECRET",
+            "maxAllowed": 3
+        },
+        "payloadLimit": "50mb",
+        "dp": 17
+    },
+    "production": {
+        "host": "kchap.randomddns.com",
+        "ws": {
+            "url": "192.168.1.170",
+            "port": 3001
+        },
+        "pg": {
+            "user": "kchap",
+            "host": "localhost",
+            "database": "kchap",
+            "password": "SECRET"
+        },
+        "mongo": {
+            "url": "mongodb://kchap:SECRET@localhost:27017/kchap"
+        },
+        "apis": {
+            "facebook": {
+                "appId": "SECRET",
+                "appSecret": "SECRET",
+                "permissions": ""
+            }
+        }
+    },
+    "test": {
+        "host": "localhost",
+        "pg": {
+            "user": "postgres",
+            "host": "localhost",
+            "database": "kchap_test",
+            "password": "SECRET"
+        },
+        "mongo": {
+            "url": "mongodb://localhost:27017/kchap"
+        },
+        "apis": {
+            "facebook": {
+                "appId": "SECRET",
+                "appSecret": "SECRET"
+            } 
+        }
+    }   
+}

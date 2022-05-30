@@ -1,0 +1,79 @@
+version: '3.8'
+
+x-kchap-common-extensions: &kchap-common
+  KCHAP: kchap
+
+x-user-admin-common-extensions: &user-admin-common
+  ADMIN_USER: admin
+x-db-common-extensions: 
+  &db_user kchap
+x-mongo_creds:
+  &mongo_admin_user admin
+
+
+services:
+  mongo:                      # Container name
+    image: mongo:5.0.8
+    restart: always
+    ports:
+      - 27018:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: *mongo_admin_user         # Admin creds are applied only when volume is created
+      MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/mongo_db_admin_password   # Secret properties should postfix with _FILE
+    volumes:
+      - mongo-data:/data/db
+      - "./init_mongo_script.js:/docker-entrypoint-initdb.d/1-init_mongo_script.js"
+    secrets:
+      - mongo_db_admin_password
+  postgres:
+    image: postgres:13.6-alpine3.15
+    restart: always                     # SQL scripts run with psql -v ON_ERROR_STOP=1, the bash script is running with set -e, which stops the container once a script error occurs
+    ports:
+      - 5431:5432
+    environment:
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_db_admin_password   # Using default user, postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - "./init_postgres_script.sql:/docker-entrypoint-initdb.d/1-init_postgres_script.sql"
+    secrets:
+      - postgres_db_admin_password
+  app:
+    build:
+      context: ./
+      target: production
+    # init: true                        # Node not designed to run as PID 1 
+    # user: node                        # Containers run as root, already defined in dockerfile
+    restart: always
+    depends_on:
+      - mongo
+      - postgres
+
+  nginx:
+    image: nginx:1.21.6-alpine
+    ports:
+      - 8080:80
+      - 8443:443
+    restart: always
+    volumes:
+      - ./data/nginx/conf.d:/etc/nginx/conf.d
+      - ./data/certbot/conf:/etc/nginx/ssl
+      - ./data/certbot/www:/var/www/certbot
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+      - ./data/certbot/logs:/var/log/letsencrypt
+    # To acquire enable command and configure nginx default.conf
+    # command: certonly --webroot --webroot-path=/var/www/certbot --email <OMITTED> --no-eff-email --agree-tos -d kchap.randomddns.com --dry-run
+volumes:
+  mongo-data:
+    driver: local
+  postgres-data:
+    driver: local
+  
+secrets:
+  mongo_db_admin_password:
+    file: ./secrets/mongo_db_admin_pass.txt
+  postgres_db_admin_password:
+    file: ./secrets/postgres_db_admin_pass.txt

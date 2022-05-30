@@ -1,0 +1,10 @@
+{
+    "id": "0",
+    "groupId": "99999",
+    "description": "Description",
+    "amount": "60",
+    "fromUserId": "100",
+    "toUserId": "200",
+    "dateTime": "2018-01-01 10:10:10",
+    "version": 0
+}
